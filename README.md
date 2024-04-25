@@ -1,5 +1,18 @@
 # Hangfire Demo
 
+## Hangfire Tables
+* AggregatedCounter - tracks metrics related to background job processing (e.g. number enqueued, processed, succeeded, failed) and information such as counter name, value, and timestamp
+* Counter - stores individual counter values for various events or metrics
+* Hash - stores key value pairs associated with background jobs (usually to store job parameters or metadata)
+* Job - stores information about background jobs (e.g. id, type/method name, arguments, queue, timestamp, etc.)
+* JobParameter - stores additional usually custom parameters associated with background jobs
+* JobQueue - maintains queue for background jobs, and stores information about the queues and the jobs enqueued in each queue
+* List - stores collections of items in a specific order (e.g. background jobs waiting to be processed), each list belongs to a specific queue
+* Schema - stores information about the database schema
+* Server - stores information about Hangfire servers (e.g. id, name, timestamp, etc.)
+* Set - data structures that store collections of unique items used for distributed locks or unique job ids
+* State - stores the state of background jobs (i.e. enqueued, processing, succeeded, failed), the timestamp of when the state was created, and any additional data related to the state
+
 ## Program.cs
 * Add Hangfire using AddHangfire method, then specify and use the database connection string for Hangfire
 * Before starting the application, manually create the HangfireDemo.Dev database using SSMS - hangfire will automatically create the necessary tables within the database
@@ -50,17 +63,14 @@ public ActionResult CreateBackgroundJob()
 }
 ```
 * Scheduled tasks will run at a specific time
+* DateTimeOffset functions similarly to DateTime, but it is aware of time zone offsets
 ```
 [HttpPost]
 [Route("CreateScheduledJob")]
 public ActionResult CreateScheduledJob()
 {
-    // Create a DateTime object to specify when we want to schedule this job (here, the job will execute five seconds after being triggered)
     var scheduleDate = DateTime.UtcNow.AddSeconds(5);
-    // We will create a DateTimeOffset object based on the schedule DateTime
-    // DateTimeOffset functions similarly to DateTime, but it is aware of time zone offsets
     var dateTimeOffset = new DateTimeOffset(scheduleDate);
-    // .Schedule returns a string that is the id of the job
     BackgroundJob.Schedule(() => Console.WriteLine("Scheduled Job Triggered"), dateTimeOffset);
     return Ok();
 }
